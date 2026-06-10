@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Get Up - The Smart Break Timer</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        background: '#121212',
+                        card: '#1E1E1E',
+                        accent: '#a5d6a7', // Light green, similar to app
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: 'Inter', system-ui, sans-serif; }
+    </style>
+</head>
+<body class="bg-background text-white antialiased selection:bg-accent selection:text-black">
+
+    <!-- Navigation -->
+    <nav class="fixed w-full z-50 bg-background/80 backdrop-blur-md border-b border-gray-800">
+        <div class="max-w-6xl mx-auto px-6 py-4 flex justify-between items-center">
+            <div class="flex items-center gap-3">
+                <img src="assets/play_store_512.png" alt="Get Up Logo" class="w-10 h-10 rounded-xl">
+                <span class="font-bold text-xl tracking-tight">Get Up</span>
+            </div>
+            <div class="flex gap-6 items-center">
+                <a href="#features" class="text-sm font-medium text-gray-300 hover:text-white transition-colors">Features</a>
+                <a href="privacy-policy.html" class="text-sm font-medium text-gray-300 hover:text-white transition-colors">Privacy</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="relative pt-32 pb-20 lg:pt-48 lg:pb-32 overflow-hidden">
+        <div class="max-w-6xl mx-auto px-6 text-center">
+            <img src="assets/play_store_512.png" alt="Get Up App Icon" class="w-32 h-32 mx-auto mb-8 rounded-3xl shadow-2xl shadow-accent/20">
+            <h1 class="text-5xl lg:text-7xl font-extrabold tracking-tight mb-6">
+                Stay Active.<br><span class="text-accent">Stay Focused.</span>
+            </h1>
+            <p class="text-lg lg:text-xl text-gray-400 mb-10 max-w-2xl mx-auto leading-relaxed">
+                A smart productivity timer designed to keep you moving, hydrated, and at your peak performance throughout the workday.
+            </p>
+            <div class="flex justify-center gap-4">
+                <button class="bg-accent text-black px-8 py-4 rounded-full font-bold text-lg hover:scale-105 transition-transform shadow-lg shadow-accent/30 flex items-center gap-2">
+                    <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M17.523 15.3414C17.523 15.3414 16.208 16.6344 14.636 17.7554C13.208 18.7744 11.206 19.3414 9.006 19.3414C6.115 19.3414 3.659 18.1184 2 16.1434V18.3414C2 19.4454 2.896 20.3414 4 20.3414H20C21.104 20.3414 22 19.4454 22 18.3414V14.3414L17.523 15.3414Z"/><path d="M22 6.34143V12.3414L15 10.3414L10 15.3414L6.168 12.3294C6.168 12.3294 6.702 11.7904 7.632 11.0824C8.905 10.1134 10.669 9.34143 12.5 9.34143C14.887 9.34143 17 10.3414 17 10.3414L22 6.34143Z"/></svg>
+                    Coming to Android
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features -->
+    <section id="features" class="py-24 bg-card border-y border-gray-800">
+        <div class="max-w-6xl mx-auto px-6">
+            <div class="grid md:grid-cols-3 gap-8">
+                <div class="bg-background p-8 rounded-3xl border border-gray-800 hover:border-accent/50 transition-colors">
+                    <div class="w-12 h-12 bg-accent/10 rounded-full flex items-center justify-center mb-6 text-accent text-2xl">
+                        💧
+                    </div>
+                    <h3 class="text-xl font-bold mb-3">Hydration Tracking</h3>
+                    <p class="text-gray-400">Regular reminders to drink water and stay refreshed during your long focus sessions.</p>
+                </div>
+                <div class="bg-background p-8 rounded-3xl border border-gray-800 hover:border-accent/50 transition-colors">
+                    <div class="w-12 h-12 bg-accent/10 rounded-full flex items-center justify-center mb-6 text-accent text-2xl">
+                        🏃
+                    </div>
+                    <h3 class="text-xl font-bold mb-3">Micro-Workouts</h3>
+                    <p class="text-gray-400">Customizable exercise prompts ranging from stretching to pushups to keep blood flowing.</p>
+                </div>
+                <div class="bg-background p-8 rounded-3xl border border-gray-800 hover:border-accent/50 transition-colors">
+                    <div class="w-12 h-12 bg-accent/10 rounded-full flex items-center justify-center mb-6 text-accent text-2xl">
+                        🔔
+                    </div>
+                    <h3 class="text-xl font-bold mb-3">Smart Alerts</h3>
+                    <p class="text-gray-400">Intelligent background alerts and interactive screen overlays that ensure you never miss a break.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="py-12 text-center text-gray-500">
+        <p class="mb-4">© 2026 Get Up App. All rights reserved.</p>
+        <div class="flex justify-center gap-6">
+            <a href="privacy-policy.html" class="hover:text-accent transition-colors">Privacy Policy</a>
+            <a href="mailto:atanuroy911@gmail.com" class="hover:text-accent transition-colors">Contact</a>
+        </div>
+    </footer>
+
+</body>
+</html>
