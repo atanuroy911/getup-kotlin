@@ -49,7 +49,7 @@
 
 ## 📄 Privacy Policy
 
-We respect your privacy. Get Up is designed to keep you healthy, not to mine your data. View our complete [Privacy Policy](privacy-policy.html) for more details.
+We respect your privacy. Get Up is designed to keep you healthy, not to mine your data. View our complete [Privacy Policy](site/privacy-policy.html) for more details.
 
 ---
 <div align="center">
