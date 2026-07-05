@@ -32,6 +32,13 @@ data class AppSettings(
     )
 )
 
+@Serializable
+data class DailyLog(
+    val date: String, // yyyy-MM-dd
+    val completed: Int = 0,
+    val skipped: Int = 0
+)
+
 enum class TimerState {
     READY, PAUSED, WORK, EXERCISE, WATER
 }
@@ -60,6 +67,12 @@ fun AppStatus.getUpcomingTask(settings: AppSettings): String {
         }
         TimerState.EXERCISE, TimerState.WATER -> "Upcoming: Deep Work"
     }
+}
+
+fun Int.toClockString(): String {
+    val m = this / 60
+    val s = this % 60
+    return String.format("%02d:%02d", m, s)
 }
 
 fun AppStatus.getCurrentTaskTitle(settings: AppSettings): String {

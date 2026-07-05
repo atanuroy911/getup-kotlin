@@ -13,12 +13,16 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.ColorLens
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.ExitToApp
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FitnessCenter
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Timer
+import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.*
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.runtime.*
@@ -34,6 +38,8 @@ import com.getup.ktimer.data.Exercise
 import com.getup.ktimer.ui.theme.LocalAppColors
 import com.getup.ktimer.ui.theme.Typography
 
+private val DangerColor = Color(0xFFE5484D)
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsScreen(
@@ -42,9 +48,11 @@ fun SettingsScreen(
     onBack: () -> Unit,
     onTestOverlay: () -> Unit,
     onDonateClick: () -> Unit = {},
-    onRequestReview: () -> Unit = {}
+    onRequestReview: () -> Unit = {},
+    onExitApp: () -> Unit = {}
 ) {
     val colors = LocalAppColors.current
+    var showExitConfirm by remember { mutableStateOf(false) }
 
     var workInterval by remember { mutableStateOf(settings.workIntervalMinutes.toString()) }
     var exerciseWindow by remember { mutableStateOf(settings.exerciseWindowMinutes.toString()) }
@@ -106,10 +114,11 @@ fun SettingsScreen(
                 Spacer(modifier = Modifier.height(12.dp))
                 OutlinedTextField(
                     value = workInterval,
-                    onValueChange = { workInterval = it },
+                    onValueChange = { workInterval = it.filter { c -> c.isDigit() } },
                     label = { Text("Work Interval (Minutes)") },
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(12.dp),
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedTextColor = colors.textPrimary,
                         unfocusedTextColor = colors.textPrimary,
@@ -120,10 +129,11 @@ fun SettingsScreen(
                 Spacer(modifier = Modifier.height(12.dp))
                 OutlinedTextField(
                     value = exerciseWindow,
-                    onValueChange = { exerciseWindow = it },
+                    onValueChange = { exerciseWindow = it.filter { c -> c.isDigit() } },
                     label = { Text("Exercise Window (Minutes)") },
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(12.dp),
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedTextColor = colors.textPrimary,
                         unfocusedTextColor = colors.textPrimary,
@@ -312,7 +322,54 @@ fun SettingsScreen(
                 ) { Text("Rate on Play Store", style = Typography.titleMedium, color = Color.White) }
             }
 
+            // Exit Card
+            SettingsCard(title = "Quit", icon = Icons.Default.ExitToApp, colors = colors) {
+                Text(
+                    "Stops the timer, removes the background service and notification, and closes the app completely.",
+                    style = Typography.bodySmall,
+                    color = colors.textSecondary
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+                OutlinedButton(
+                    onClick = { showExitConfirm = true },
+                    modifier = Modifier.fillMaxWidth().height(48.dp),
+                    shape = RoundedCornerShape(12.dp),
+                    colors = ButtonDefaults.outlinedButtonColors(contentColor = DangerColor),
+                    border = androidx.compose.foundation.BorderStroke(1.dp, DangerColor)
+                ) { Text("Exit App", style = Typography.titleMedium) }
+            }
+
             Spacer(modifier = Modifier.height(32.dp))
+        }
+
+        if (showExitConfirm) {
+            AlertDialog(
+                onDismissRequest = { showExitConfirm = false },
+                icon = { Icon(Icons.Default.Warning, contentDescription = null, tint = DangerColor) },
+                title = { Text("Exit GetUp?", color = colors.textPrimary) },
+                text = {
+                    Text(
+                        "This stops the timer completely and closes the app. It will not send you any more reminders until you reopen it.",
+                        color = colors.textSecondary
+                    )
+                },
+                confirmButton = {
+                    TextButton(onClick = {
+                        showExitConfirm = false
+                        onExitApp()
+                    }) {
+                        Text("Exit", color = DangerColor)
+                    }
+                },
+                dismissButton = {
+                    TextButton(onClick = { showExitConfirm = false }) {
+                        Text("Cancel", color = colors.defaultAccent)
+                    }
+                },
+                containerColor = colors.cardBackground,
+                titleContentColor = colors.textPrimary,
+                textContentColor = colors.textSecondary
+            )
         }
 
         if (showUpdatedDialog) {
@@ -393,10 +450,11 @@ fun ExerciseInput(
         )
         OutlinedTextField(
             value = reps,
-            onValueChange = onRepsChange,
+            onValueChange = { onRepsChange(it.filter { c -> c.isDigit() }) },
             label = { Text("Reps") },
             modifier = Modifier.weight(1f),
             shape = RoundedCornerShape(12.dp),
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
             colors = OutlinedTextFieldDefaults.colors(
                 focusedTextColor = colors.textPrimary,
                 unfocusedTextColor = colors.textPrimary,

@@ -47,6 +47,7 @@ import com.getup.ktimer.data.AppPreferences
 import com.getup.ktimer.data.TimerState
 import com.getup.ktimer.data.getUpcomingTask
 import com.getup.ktimer.data.getCurrentTaskTitle
+import com.getup.ktimer.data.toClockString
 import com.getup.ktimer.service.TimerService
 import com.getup.ktimer.ui.theme.GetUpTheme
 import com.getup.ktimer.ui.theme.LocalAppColors
@@ -79,9 +80,12 @@ object OverlayManager {
     private var isShowing = false
 
     @SuppressLint("ClickableViewAccessibility")
-    fun show(context: Context) {
-        if (!Settings.canDrawOverlays(context) || isShowing) return
+    fun show(activityContext: Context) {
+        if (!Settings.canDrawOverlays(activityContext) || isShowing) return
 
+        // Use the application context for the window/view so the overlay never
+        // pins the Activity in memory across rotation or process death.
+        val context = activityContext.applicationContext
         windowManager = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
         
         val layoutFlag = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -174,10 +178,8 @@ fun OverlayContent(
     onOpenApp: () -> Unit,
     onDrag: (Float, Float) -> Unit
 ) {
-    val m = status.remainingSeconds / 60
-    val s = status.remainingSeconds % 60
-    val timeString = String.format("%02d:%02d", m, s)
-    
+    val timeString = status.remainingSeconds.toClockString()
+
     val colors = LocalAppColors.current
     val bgColor = colors.background.copy(alpha = 0.95f)
 

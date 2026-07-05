@@ -16,6 +16,7 @@ import com.getup.ktimer.data.AppPreferences
 import com.getup.ktimer.data.AppSettings
 import com.getup.ktimer.data.AppStatus
 import com.getup.ktimer.data.TimerState
+import com.getup.ktimer.data.toClockString
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -36,6 +37,7 @@ class TimerService : Service() {
         const val ACTION_SKIP = "com.getup.ktimer.SKIP"
         const val ACTION_DONE = "com.getup.ktimer.DONE"
         const val ACTION_TEST_SOUND = "com.getup.ktimer.TEST_SOUND"
+        const val ACTION_EXIT = "com.getup.ktimer.EXIT"
 
         private const val NOTIFICATION_CHANNEL_ID = "get_up_channel_id"
         private const val NOTIFICATION_ID = 1
@@ -54,7 +56,7 @@ class TimerService : Service() {
 
     private val serviceScope = CoroutineScope(Dispatchers.Main + Job())
     private var timerJob: Job? = null
-    private var mediaPlayer: MediaPlayer? = null
+    private val activeMediaPlayers = mutableListOf<MediaPlayer>()
 
     override fun onCreate() {
         super.onCreate()
@@ -95,6 +97,7 @@ class TimerService : Service() {
                 ACTION_SKIP -> handleSkipOrDone(isSkip = true)
                 ACTION_DONE -> handleSkipOrDone(isSkip = false)
                 ACTION_TEST_SOUND -> handleTestSound()
+                ACTION_EXIT -> handleExit()
             }
         }
         return START_STICKY
@@ -106,7 +109,10 @@ class TimerService : Service() {
         super.onDestroy()
         prefs.saveStatus(status)
         serviceScope.cancel()
-        mediaPlayer?.release()
+        synchronized(activeMediaPlayers) {
+            activeMediaPlayers.forEach { runCatching { it.stop(); it.release() } }
+            activeMediaPlayers.clear()
+        }
     }
 
     private fun startTimerLoop() {
@@ -132,8 +138,8 @@ class TimerService : Service() {
         
         status = status.copy(remainingSeconds = maxOf(0, diffSeconds))
 
-        // Play bell 3 seconds before work ends
-        if (status.state == TimerState.WORK && status.remainingSeconds == 3 && !bellPlayed) {
+        // Play bell 3 seconds before work ends (<= guards against tick drift skipping exactly 3)
+        if (status.state == TimerState.WORK && status.remainingSeconds in 1..3 && !bellPlayed) {
             bellPlayed = true
             playBell()
         }
@@ -206,7 +212,11 @@ class TimerService : Service() {
             serviceScope.launch(Dispatchers.IO) {
                 for (i in 0 until 3) {
                     val player = MediaPlayer.create(this@TimerService, com.getup.ktimer.R.raw.bell)
-                    player.setOnCompletionListener { it.release() }
+                    synchronized(activeMediaPlayers) { activeMediaPlayers.add(player) }
+                    player.setOnCompletionListener {
+                        synchronized(activeMediaPlayers) { activeMediaPlayers.remove(it) }
+                        it.release()
+                    }
                     player.start()
                     delay(1000.milliseconds)
                 }
@@ -354,7 +364,11 @@ class TimerService : Service() {
         } else {
             try {
                 val player = MediaPlayer.create(this, com.getup.ktimer.R.raw.bell)
-                player.setOnCompletionListener { it.release() }
+                synchronized(activeMediaPlayers) { activeMediaPlayers.add(player) }
+                player.setOnCompletionListener {
+                    synchronized(activeMediaPlayers) { activeMediaPlayers.remove(it) }
+                    it.release()
+                }
                 player.start()
             } catch (e: Exception) {
                 e.printStackTrace()
@@ -382,13 +396,38 @@ class TimerService : Service() {
                 skippedTasks = if (isSkip) status.skippedTasks + 1 else status.skippedTasks,
                 completedTasks = if (!isSkip) status.completedTasks + 1 else status.completedTasks
             )
+            prefs.recordTaskEvent(completed = !isSkip)
             if (!isTransitioning) {
                 isTransitioning = true
                 transitionState()
                 isTransitioning = false
                 updateAll()
             }
+        } else {
+            // Stale/duplicate action (e.g. a delayed PendingIntent) arrived after the
+            // state already moved on. Resync the UI instead of silently dropping it.
+            updateAll()
         }
+    }
+
+    private fun handleExit() {
+        timerJob?.cancel()
+        status = status.copy(state = TimerState.READY, remainingSeconds = settings.workIntervalMinutes * 60)
+        targetTimeMs = null
+        prefs.saveStatus(status)
+        _appStatusFlow.value = status
+
+        val manager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        manager.cancel(NOTIFICATION_ID)
+        manager.cancel(2)
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            stopForeground(STOP_FOREGROUND_REMOVE)
+        } else {
+            @Suppress("DEPRECATION")
+            stopForeground(true)
+        }
+        stopSelf()
     }
 
     private fun updateAll() {
@@ -421,11 +460,7 @@ class TimerService : Service() {
         }
     }
 
-    private fun formatTime(secs: Int): String {
-        val m = secs / 60
-        val s = secs % 60
-        return String.format("%02d:%02d", m, s)
-    }
+    private fun formatTime(secs: Int): String = secs.toClockString()
 
     private fun createNotificationChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -472,9 +507,11 @@ class TimerService : Service() {
 
         val pauseIntent = Intent(this, TimerService::class.java).apply { action = ACTION_PAUSE }
         val resumeIntent = Intent(this, TimerService::class.java).apply { action = ACTION_RESUME }
+        val exitIntent = Intent(this, TimerService::class.java).apply { action = ACTION_EXIT }
 
         val pausePending = PendingIntent.getService(this, 1, pauseIntent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
         val resumePending = PendingIntent.getService(this, 2, resumeIntent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
+        val exitPending = PendingIntent.getService(this, 3, exitIntent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
 
         val builder = NotificationCompat.Builder(this, NOTIFICATION_CHANNEL_ID)
             .setContentTitle(title)
@@ -489,6 +526,7 @@ class TimerService : Service() {
         } else if (status.state == TimerState.PAUSED) {
             builder.addAction(android.R.drawable.ic_media_play, "Resume", resumePending)
         }
+        builder.addAction(android.R.drawable.ic_menu_close_clear_cancel, "Exit", exitPending)
 
         return builder.build()
     }

@@ -83,6 +83,10 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         sendCommand(TimerService.ACTION_RESET)
     }
 
+    fun exitApp() {
+        sendCommand(TimerService.ACTION_EXIT)
+    }
+
     private fun sendCommand(action: String) {
         val intent = Intent(getApplication(), TimerService::class.java).apply {
             this.action = action

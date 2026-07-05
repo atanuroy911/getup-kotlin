@@ -21,6 +21,13 @@ android {
     buildTypes {
         release {
             optimization {
+                // R8 shrinking/obfuscation is disabled: enabling it on this AGP 9.2.1
+                // preview requires the experimental `android.r8.gradual.support` flag,
+                // which could not be verified end-to-end in this environment (no working
+                // release toolchain here). proguard-rules.pro is ready to go once someone
+                // can build+test a minified release: set enable = true, add
+                // `android.r8.gradual.support=true` to gradle.properties, and wire in
+                // keepRules { files.add(file("proguard-rules.pro")) }.
                 enable = false
             }
         }

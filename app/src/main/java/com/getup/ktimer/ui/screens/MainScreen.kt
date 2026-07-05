@@ -23,14 +23,22 @@ import androidx.compose.ui.draw.scale
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.getup.ktimer.data.AppPreferences
 import com.getup.ktimer.data.AppSettings
 import com.getup.ktimer.data.AppStatus
+import com.getup.ktimer.data.DailyLog
 import com.getup.ktimer.data.TimerState
 import com.getup.ktimer.data.getUpcomingTask
+import com.getup.ktimer.data.toClockString
 import com.getup.ktimer.ui.theme.LocalAppColors
+import java.text.SimpleDateFormat
+import java.util.Locale
 import com.getup.ktimer.ui.theme.Typography
 
 @OptIn(ExperimentalAnimationApi::class)
@@ -58,6 +66,14 @@ fun MainScreen(
     ) {
         var overlayMode by remember { mutableStateOf<com.getup.ktimer.data.SoundMode?>(null) }
         var showInfoDialog by remember { mutableStateOf(false) }
+        val context = LocalContext.current
+        var weeklyActivity by remember { mutableStateOf<List<DailyLog>>(emptyList()) }
+
+        LaunchedEffect(showInfoDialog) {
+            if (showInfoDialog) {
+                weeklyActivity = AppPreferences(context).getRecentActivity(7)
+            }
+        }
 
         LaunchedEffect(overlayMode) {
             if (overlayMode != null) {
@@ -163,7 +179,18 @@ fun MainScreen(
                         Text("Task Performance", style = Typography.titleMedium, color = accentColor)
                         Spacer(modifier = Modifier.height(4.dp))
                         Text("Completed: ${status.completedTasks} tasks\nSkipped: ${status.skippedTasks} tasks", color = colors.textPrimary)
-                        
+
+                        Spacer(modifier = Modifier.height(16.dp))
+
+                        Text("Last 7 Days", style = Typography.titleMedium, color = accentColor)
+                        Spacer(modifier = Modifier.height(8.dp))
+                        WeeklyActivityChart(
+                            logs = weeklyActivity,
+                            completedColor = colors.workAccent,
+                            skippedColor = colors.exerciseAccent,
+                            labelColor = colors.textSecondary
+                        )
+
                         Spacer(modifier = Modifier.height(16.dp))
                         
                         Text("Why it matters", style = Typography.titleMedium, color = accentColor)
@@ -199,10 +226,9 @@ fun TimerView(
     onReset: () -> Unit
 ) {
     val colors = LocalAppColors.current
+    val haptics = LocalHapticFeedback.current
 
-    val m = status.remainingSeconds / 60
-    val s = status.remainingSeconds % 60
-    val timeString = String.format("%02d:%02d", m, s)
+    val timeString = status.remainingSeconds.toClockString()
 
     val label = when (status.state) {
         TimerState.READY -> "Ready to Focus"
@@ -245,7 +271,16 @@ fun TimerView(
             style = Typography.titleLarge,
             color = colors.textPrimary
         )
-        
+
+        if (status.cycleIndex > 0) {
+            Spacer(modifier = Modifier.height(4.dp))
+            Text(
+                text = "Cycle ${status.cycleIndex + 1}",
+                style = Typography.bodySmall,
+                color = colors.textSecondary
+            )
+        }
+
         Spacer(modifier = Modifier.height(48.dp))
 
         Box(
@@ -337,7 +372,10 @@ fun TimerView(
             verticalAlignment = Alignment.CenterVertically
         ) {
             FloatingActionButton(
-                onClick = onToggle,
+                onClick = {
+                    haptics.performHapticFeedback(HapticFeedbackType.LongPress)
+                    onToggle()
+                },
                 containerColor = accentColor,
                 modifier = Modifier
                     .size(80.dp)
@@ -383,10 +421,9 @@ fun ActivityView(
     onDone: () -> Unit
 ) {
     val colors = LocalAppColors.current
+    val haptics = LocalHapticFeedback.current
 
-    val m = status.remainingSeconds / 60
-    val s = status.remainingSeconds % 60
-    val timeString = String.format("%02d:%02d", m, s)
+    val timeString = status.remainingSeconds.toClockString()
 
     val title = if (status.state == TimerState.WATER) "Drink Water!" else "Time to Move!"
     val task = if (status.state == TimerState.WATER) "Hydrate" else {
@@ -442,7 +479,10 @@ fun ActivityView(
             horizontalArrangement = Arrangement.SpaceEvenly
         ) {
             Button(
-                onClick = onSkip,
+                onClick = {
+                    haptics.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                    onSkip()
+                },
                 colors = ButtonDefaults.buttonColors(containerColor = colors.divider.copy(alpha = 0.5f)),
                 modifier = Modifier
                     .weight(1f)
@@ -453,7 +493,10 @@ fun ActivityView(
             }
             Spacer(modifier = Modifier.width(16.dp))
             Button(
-                onClick = onDone,
+                onClick = {
+                    haptics.performHapticFeedback(HapticFeedbackType.LongPress)
+                    onDone()
+                },
                 colors = ButtonDefaults.buttonColors(containerColor = accentColor),
                 modifier = Modifier
                     .weight(1f)
@@ -462,6 +505,83 @@ fun ActivityView(
                 shape = RoundedCornerShape(24.dp)
             ) {
                 Text("Done", style = Typography.titleLarge, color = Color.White)
+            }
+        }
+    }
+}
+
+@Composable
+fun WeeklyActivityChart(
+    logs: List<DailyLog>,
+    completedColor: Color,
+    skippedColor: Color,
+    labelColor: Color
+) {
+    val maxCount = (logs.maxOfOrNull { it.completed + it.skipped } ?: 0).coerceAtLeast(1)
+    val weekdayFormat = remember { SimpleDateFormat("EEE", Locale.getDefault()) }
+    val dateFormat = remember { SimpleDateFormat("yyyy-MM-dd", Locale.US) }
+
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(96.dp),
+        horizontalArrangement = Arrangement.SpaceEvenly,
+        verticalAlignment = Alignment.Bottom
+    ) {
+        logs.forEach { log ->
+            val dayLabel = try {
+                weekdayFormat.format(dateFormat.parse(log.date)!!).take(1)
+            } catch (e: Exception) {
+                "?"
+            }
+            val total = log.completed + log.skipped
+            val emptyWeight = (maxCount - total).coerceAtLeast(0).toFloat()
+
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier.weight(1f)
+            ) {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Bottom,
+                    modifier = Modifier
+                        .weight(1f)
+                        .width(14.dp)
+                ) {
+                    if (total == 0) {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(3.dp)
+                                .clip(RoundedCornerShape(2.dp))
+                                .background(labelColor.copy(alpha = 0.25f))
+                        )
+                    } else {
+                        if (emptyWeight > 0f) {
+                            Spacer(modifier = Modifier.weight(emptyWeight))
+                        }
+                        if (log.skipped > 0) {
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .weight(log.skipped.toFloat())
+                                    .clip(RoundedCornerShape(topStart = 3.dp, topEnd = 3.dp))
+                                    .background(skippedColor.copy(alpha = 0.7f))
+                            )
+                        }
+                        if (log.completed > 0) {
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .weight(log.completed.toFloat())
+                                    .clip(RoundedCornerShape(bottomStart = 3.dp, bottomEnd = 3.dp))
+                                    .background(completedColor)
+                            )
+                        }
+                    }
+                }
+                Spacer(modifier = Modifier.height(6.dp))
+                Text(text = dayLabel, style = Typography.bodySmall, color = labelColor, fontSize = 10.sp)
             }
         }
     }

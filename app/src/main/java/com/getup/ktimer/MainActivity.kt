@@ -158,6 +158,11 @@ class MainActivity : ComponentActivity() {
                                 },
                                 onRequestReview = {
                                     playServicesManager.requestReview(this@MainActivity)
+                                },
+                                onExitApp = {
+                                    OverlayManager.hide()
+                                    viewModel.exitApp()
+                                    finishAndRemoveTask()
                                 }
                             )
                         }
