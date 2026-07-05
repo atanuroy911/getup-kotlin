@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Get Up - The Smart Break Timer</title>
+    <meta name="description" content="Get Up is a native Android productivity timer that keeps you moving, hydrated, and focused with smart break reminders, micro-workouts, and a floating overlay timer.">
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -20,6 +21,9 @@
     </script>
     <style>
         body { font-family: 'Inter', system-ui, sans-serif; }
+        .shot-scroll::-webkit-scrollbar { height: 8px; }
+        .shot-scroll::-webkit-scrollbar-thumb { background: #333; border-radius: 999px; }
+        .shot-scroll::-webkit-scrollbar-track { background: transparent; }
     </style>
 </head>
 <body class="bg-background text-white antialiased selection:bg-accent selection:text-black">
@@ -32,8 +36,11 @@
                 <span class="font-bold text-xl tracking-tight">Get Up</span>
             </div>
             <div class="flex gap-6 items-center">
-                <a href="#features" class="text-sm font-medium text-gray-300 hover:text-white transition-colors">Features</a>
+                <a href="#features" class="text-sm font-medium text-gray-300 hover:text-white transition-colors hidden sm:inline">Features</a>
+                <a href="#screenshots" class="text-sm font-medium text-gray-300 hover:text-white transition-colors hidden sm:inline">Screenshots</a>
+                <a href="#demo" class="text-sm font-medium text-gray-300 hover:text-white transition-colors hidden sm:inline">Demo</a>
                 <a href="privacy-policy.html" class="text-sm font-medium text-gray-300 hover:text-white transition-colors">Privacy</a>
+                <a href="terms-and-conditions.html" class="text-sm font-medium text-gray-300 hover:text-white transition-colors">Terms</a>
             </div>
         </div>
     </nav>
@@ -48,39 +55,111 @@
             <p class="text-lg lg:text-xl text-gray-400 mb-10 max-w-2xl mx-auto leading-relaxed">
                 A smart productivity timer designed to keep you moving, hydrated, and at your peak performance throughout the workday.
             </p>
-            <div class="flex justify-center gap-4">
-                <button class="bg-accent text-black px-8 py-4 rounded-full font-bold text-lg hover:scale-105 transition-transform shadow-lg shadow-accent/30 flex items-center gap-2">
+            <div class="flex justify-center gap-4 flex-wrap">
+                <a href="#screenshots" class="bg-accent text-black px-8 py-4 rounded-full font-bold text-lg hover:scale-105 transition-transform shadow-lg shadow-accent/30 flex items-center gap-2">
                     <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M17.523 15.3414C17.523 15.3414 16.208 16.6344 14.636 17.7554C13.208 18.7744 11.206 19.3414 9.006 19.3414C6.115 19.3414 3.659 18.1184 2 16.1434V18.3414C2 19.4454 2.896 20.3414 4 20.3414H20C21.104 20.3414 22 19.4454 22 18.3414V14.3414L17.523 15.3414Z"/><path d="M22 6.34143V12.3414L15 10.3414L10 15.3414L6.168 12.3294C6.168 12.3294 6.702 11.7904 7.632 11.0824C8.905 10.1134 10.669 9.34143 12.5 9.34143C14.887 9.34143 17 10.3414 17 10.3414L22 6.34143Z"/></svg>
-                    Coming to Android
-                </button>
+                    See it in action
+                </a>
+                <a href="https://github.com/atanuroy911/getup-kotlin" target="_blank" rel="noopener noreferrer" class="border border-gray-700 text-gray-200 px-8 py-4 rounded-full font-bold text-lg hover:border-accent hover:text-accent transition-colors">
+                    View on GitHub
+                </a>
             </div>
         </div>
     </section>
 
-    <!-- Features -->
-    <section id="features" class="py-24 bg-card border-y border-gray-800">
+    <!-- Screenshots -->
+    <section id="screenshots" class="py-24 border-y border-gray-800">
         <div class="max-w-6xl mx-auto px-6">
+            <h2 class="text-3xl lg:text-4xl font-extrabold text-center mb-4">See the App</h2>
+            <p class="text-gray-400 text-center mb-12 max-w-xl mx-auto">From onboarding to deep focus sessions, settings, and the floating overlay &mdash; here's Get Up in action.</p>
+            <div class="flex gap-6 overflow-x-auto shot-scroll pb-6 px-2 -mx-2 snap-x snap-mandatory">
+                <figure class="shrink-0 w-56 snap-center">
+                    <img src="assets/screenshots/main-ready.png" alt="Main screen ready to start a focus session" class="w-full rounded-2xl border border-gray-800 shadow-xl">
+                    <figcaption class="text-sm text-gray-400 text-center mt-3">Ready to Focus</figcaption>
+                </figure>
+                <figure class="shrink-0 w-56 snap-center">
+                    <img src="assets/screenshots/main-deepwork.png" alt="Deep work timer counting down" class="w-full rounded-2xl border border-gray-800 shadow-xl">
+                    <figcaption class="text-sm text-gray-400 text-center mt-3">Deep Work Timer</figcaption>
+                </figure>
+                <figure class="shrink-0 w-56 snap-center">
+                    <img src="assets/screenshots/overlay-home.jpg" alt="Floating overlay timer on the home screen" class="w-full rounded-2xl border border-gray-800 shadow-xl">
+                    <figcaption class="text-sm text-gray-400 text-center mt-3">Floating Overlay</figcaption>
+                </figure>
+                <figure class="shrink-0 w-56 snap-center">
+                    <img src="assets/screenshots/settings-intervals.png" alt="Settings screen for work interval and exercises" class="w-full rounded-2xl border border-gray-800 shadow-xl">
+                    <figcaption class="text-sm text-gray-400 text-center mt-3">Custom Intervals</figcaption>
+                </figure>
+                <figure class="shrink-0 w-56 snap-center">
+                    <img src="assets/screenshots/settings-features.png" alt="Settings screen with theme and feature toggles" class="w-full rounded-2xl border border-gray-800 shadow-xl">
+                    <figcaption class="text-sm text-gray-400 text-center mt-3">Themes &amp; Toggles</figcaption>
+                </figure>
+                <figure class="shrink-0 w-56 snap-center">
+                    <img src="assets/screenshots/stats-dialog.png" alt="Weekly activity statistics dialog" class="w-full rounded-2xl border border-gray-800 shadow-xl">
+                    <figcaption class="text-sm text-gray-400 text-center mt-3">Weekly Stats</figcaption>
+                </figure>
+                <figure class="shrink-0 w-56 snap-center">
+                    <img src="assets/screenshots/exit-confirm-1.png" alt="First exit confirmation dialog" class="w-full rounded-2xl border border-gray-800 shadow-xl">
+                    <figcaption class="text-sm text-gray-400 text-center mt-3">Exit, Confirmed Twice</figcaption>
+                </figure>
+            </div>
+        </div>
+    </section>
+
+    <!-- Demo GIF -->
+    <section id="demo" class="py-24 bg-card border-b border-gray-800">
+        <div class="max-w-4xl mx-auto px-6 text-center">
+            <h2 class="text-3xl lg:text-4xl font-extrabold mb-4">Watch the Flow</h2>
+            <p class="text-gray-400 mb-12 max-w-xl mx-auto">A quick walkthrough: starting a focus session, checking settings and stats, confirming exit, and the overlay following you home.</p>
+            <img src="assets/demo.gif" alt="Animated demo of the Get Up app walking through the timer, settings, stats, exit confirmation, and overlay" class="mx-auto rounded-3xl border border-gray-800 shadow-2xl shadow-accent/10 max-w-xs w-full">
+        </div>
+    </section>
+
+    <!-- Features -->
+    <section id="features" class="py-24 border-b border-gray-800">
+        <div class="max-w-6xl mx-auto px-6">
+            <h2 class="text-3xl lg:text-4xl font-extrabold text-center mb-12">Why Get Up</h2>
             <div class="grid md:grid-cols-3 gap-8">
-                <div class="bg-background p-8 rounded-3xl border border-gray-800 hover:border-accent/50 transition-colors">
+                <div class="bg-card p-8 rounded-3xl border border-gray-800 hover:border-accent/50 transition-colors">
                     <div class="w-12 h-12 bg-accent/10 rounded-full flex items-center justify-center mb-6 text-accent text-2xl">
                         💧
                     </div>
                     <h3 class="text-xl font-bold mb-3">Hydration Tracking</h3>
                     <p class="text-gray-400">Regular reminders to drink water and stay refreshed during your long focus sessions.</p>
                 </div>
-                <div class="bg-background p-8 rounded-3xl border border-gray-800 hover:border-accent/50 transition-colors">
+                <div class="bg-card p-8 rounded-3xl border border-gray-800 hover:border-accent/50 transition-colors">
                     <div class="w-12 h-12 bg-accent/10 rounded-full flex items-center justify-center mb-6 text-accent text-2xl">
                         🏃
                     </div>
                     <h3 class="text-xl font-bold mb-3">Micro-Workouts</h3>
                     <p class="text-gray-400">Customizable exercise prompts ranging from stretching to pushups to keep blood flowing.</p>
                 </div>
-                <div class="bg-background p-8 rounded-3xl border border-gray-800 hover:border-accent/50 transition-colors">
+                <div class="bg-card p-8 rounded-3xl border border-gray-800 hover:border-accent/50 transition-colors">
                     <div class="w-12 h-12 bg-accent/10 rounded-full flex items-center justify-center mb-6 text-accent text-2xl">
                         🔔
                     </div>
                     <h3 class="text-xl font-bold mb-3">Smart Alerts</h3>
-                    <p class="text-gray-400">Intelligent background alerts and interactive screen overlays that ensure you never miss a break.</p>
+                    <p class="text-gray-400">Intelligent background alerts and an interactive floating overlay ensure you never miss a break.</p>
+                </div>
+                <div class="bg-card p-8 rounded-3xl border border-gray-800 hover:border-accent/50 transition-colors">
+                    <div class="w-12 h-12 bg-accent/10 rounded-full flex items-center justify-center mb-6 text-accent text-2xl">
+                        📊
+                    </div>
+                    <h3 class="text-xl font-bold mb-3">Activity Stats</h3>
+                    <p class="text-gray-400">A 7-day chart of completed vs. skipped tasks so you can see your habits build up over time.</p>
+                </div>
+                <div class="bg-card p-8 rounded-3xl border border-gray-800 hover:border-accent/50 transition-colors">
+                    <div class="w-12 h-12 bg-accent/10 rounded-full flex items-center justify-center mb-6 text-accent text-2xl">
+                        🌙
+                    </div>
+                    <h3 class="text-xl font-bold mb-3">Theming</h3>
+                    <p class="text-gray-400">Sleek Light, Dark, and OLED-friendly Pure Black modes to match your setup.</p>
+                </div>
+                <div class="bg-card p-8 rounded-3xl border border-gray-800 hover:border-accent/50 transition-colors">
+                    <div class="w-12 h-12 bg-accent/10 rounded-full flex items-center justify-center mb-6 text-accent text-2xl">
+                        🔒
+                    </div>
+                    <h3 class="text-xl font-bold mb-3">Private by Default</h3>
+                    <p class="text-gray-400">Everything is stored locally on your device. No accounts, no ads, no tracking.</p>
                 </div>
             </div>
         </div>
@@ -89,8 +168,10 @@
     <!-- Footer -->
     <footer class="py-12 text-center text-gray-500">
         <p class="mb-4">© 2026 Get Up App. All rights reserved.</p>
-        <div class="flex justify-center gap-6">
+        <div class="flex justify-center gap-6 flex-wrap">
             <a href="privacy-policy.html" class="hover:text-accent transition-colors">Privacy Policy</a>
+            <a href="terms-and-conditions.html" class="hover:text-accent transition-colors">Terms &amp; Conditions</a>
+            <a href="https://github.com/atanuroy911/getup-kotlin" target="_blank" rel="noopener noreferrer" class="hover:text-accent transition-colors">GitHub</a>
             <a href="mailto:atanuroy911@gmail.com" class="hover:text-accent transition-colors">Contact</a>
         </div>
     </footer>

@@ -3,9 +3,31 @@
   <h1>Get Up</h1>
   <p><strong>Stay Active. Stay Focused. Stay Healthy.</strong></p>
   <p>A smart productivity timer designed to keep you moving, hydrated, and at your peak performance throughout the workday.</p>
+  <p>
+    <img src="https://img.shields.io/badge/version-1.1.0-a5d6a7" alt="version 1.1.0" />
+  </p>
 </div>
 
 <br />
+
+## 📸 Screenshots
+
+<div align="center">
+  <img src="docs/assets/screenshots/main-ready.png" alt="Ready to focus" width="180" />
+  <img src="docs/assets/screenshots/main-deepwork.png" alt="Deep work timer" width="180" />
+  <img src="docs/assets/screenshots/overlay-home.jpg" alt="Floating overlay on home screen" width="180" />
+  <img src="docs/assets/screenshots/settings-features.png" alt="Settings: themes and toggles" width="180" />
+</div>
+
+<br />
+
+## 🎬 Demo
+
+<div align="center">
+  <img src="docs/assets/demo.gif" alt="Get Up app demo: starting a focus session, settings, stats, exit confirmation, and the floating overlay" width="280" />
+</div>
+
+More screenshots and the full landing page live in [docs/index.html](docs/index.html).
 
 ## 🌟 About
 
@@ -47,9 +69,9 @@
 3. Sync Gradle and build the project.
 4. Run on a physical device or emulator (Android 8.0+ required, Android 12+ recommended).
 
-## 📄 Privacy Policy
+## 📄 Privacy Policy & Terms
 
-We respect your privacy. Get Up is designed to keep you healthy, not to mine your data. View our complete [Privacy Policy](site/privacy-policy.html) for more details.
+We respect your privacy. Get Up is designed to keep you healthy, not to mine your data — everything is stored locally on your device, with no ads or trackers. View our complete [Privacy Policy](docs/privacy-policy.html) and [Terms & Conditions](docs/terms-and-conditions.html) for more details.
 
 ---
 <div align="center">
