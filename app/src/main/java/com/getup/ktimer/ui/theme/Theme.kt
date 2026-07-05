@@ -123,9 +123,15 @@ fun GetUpTheme(
     val view = LocalView.current
     if (!view.isInEditMode) {
         SideEffect {
-            val window = (view.context as Activity).window
-            window.statusBarColor = Color.Transparent.toArgb()
-            WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = appTheme == AppTheme.LIGHT
+            // The overlay's ComposeView is hosted on the application context (not an
+            // Activity), so this cast must be guarded to avoid crashing the whole app
+            // when the overlay is shown.
+            val activity = view.context as? Activity
+            if (activity != null) {
+                val window = activity.window
+                window.statusBarColor = Color.Transparent.toArgb()
+                WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = appTheme == AppTheme.LIGHT
+            }
         }
     }
 
