@@ -14,6 +14,8 @@ import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Vibration
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.MeetingRoom
+import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -41,6 +43,8 @@ import java.text.SimpleDateFormat
 import java.util.Locale
 import com.getup.ktimer.ui.theme.Typography
 
+private val DangerColor = Color(0xFFE5484D)
+
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun MainScreen(
@@ -51,7 +55,8 @@ fun MainScreen(
     onDone: () -> Unit,
     onReset: () -> Unit,
     onSettingsClick: () -> Unit,
-    onToggleSoundMode: () -> Unit
+    onToggleSoundMode: () -> Unit,
+    onExitApp: () -> Unit = {}
 ) {
     val colors = LocalAppColors.current
     val isActivity = status.state == TimerState.EXERCISE || status.state == TimerState.WATER
@@ -66,6 +71,7 @@ fun MainScreen(
     ) {
         var overlayMode by remember { mutableStateOf<com.getup.ktimer.data.SoundMode?>(null) }
         var showInfoDialog by remember { mutableStateOf(false) }
+        var exitConfirmStep by remember { mutableStateOf(0) }
         val context = LocalContext.current
         var weeklyActivity by remember { mutableStateOf<List<DailyLog>>(emptyList()) }
 
@@ -168,6 +174,74 @@ fun MainScreen(
                 .padding(16.dp)
         ) {
             Icon(Icons.Default.Info, contentDescription = "Information", tint = colors.textPrimary)
+        }
+
+        // Exit App Icon
+        IconButton(
+            onClick = { exitConfirmStep = 1 },
+            modifier = Modifier
+                .align(Alignment.BottomStart)
+                .navigationBarsPadding()
+                .padding(16.dp)
+        ) {
+            Icon(Icons.Default.MeetingRoom, contentDescription = "Exit App", tint = DangerColor)
+        }
+
+        if (exitConfirmStep == 1) {
+            AlertDialog(
+                onDismissRequest = { exitConfirmStep = 0 },
+                icon = { Icon(Icons.Default.Warning, contentDescription = null, tint = DangerColor) },
+                title = { Text("Exit GetUp?", color = colors.textPrimary) },
+                text = {
+                    Text(
+                        "This stops the timer completely and closes the app. It will not send you any more reminders until you reopen it.",
+                        color = colors.textSecondary
+                    )
+                },
+                confirmButton = {
+                    TextButton(onClick = { exitConfirmStep = 2 }) {
+                        Text("Continue", color = DangerColor)
+                    }
+                },
+                dismissButton = {
+                    TextButton(onClick = { exitConfirmStep = 0 }) {
+                        Text("Cancel", color = colors.defaultAccent)
+                    }
+                },
+                containerColor = colors.cardBackground,
+                titleContentColor = colors.textPrimary,
+                textContentColor = colors.textSecondary
+            )
+        }
+
+        if (exitConfirmStep == 2) {
+            AlertDialog(
+                onDismissRequest = { exitConfirmStep = 0 },
+                icon = { Icon(Icons.Default.Warning, contentDescription = null, tint = DangerColor) },
+                title = { Text("Are you absolutely sure?", color = colors.textPrimary) },
+                text = {
+                    Text(
+                        "This is your last chance to back out. Confirm to exit and stop all reminders.",
+                        color = colors.textSecondary
+                    )
+                },
+                confirmButton = {
+                    TextButton(onClick = {
+                        exitConfirmStep = 0
+                        onExitApp()
+                    }) {
+                        Text("Exit", color = DangerColor)
+                    }
+                },
+                dismissButton = {
+                    TextButton(onClick = { exitConfirmStep = 0 }) {
+                        Text("Cancel", color = colors.defaultAccent)
+                    }
+                },
+                containerColor = colors.cardBackground,
+                titleContentColor = colors.textPrimary,
+                textContentColor = colors.textSecondary
+            )
         }
 
         if (showInfoDialog) {

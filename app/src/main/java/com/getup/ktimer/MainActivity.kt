@@ -137,7 +137,12 @@ class MainActivity : ComponentActivity() {
                                 onDone = { viewModel.doneTask() },
                                 onReset = { viewModel.resetTimer() },
                                 onSettingsClick = { navController.navigate("settings") },
-                                onToggleSoundMode = { viewModel.toggleSoundMode() }
+                                onToggleSoundMode = { viewModel.toggleSoundMode() },
+                                onExitApp = {
+                                    OverlayManager.hide()
+                                    viewModel.exitApp()
+                                    finishAndRemoveTask()
+                                }
                             )
                         }
 
